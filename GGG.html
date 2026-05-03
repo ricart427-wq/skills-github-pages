@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geladinhos da Mily</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: linear-gradient(135deg, #ff4d6d, #c77dff);
+  color: white;
+  text-align: center;
+}
+
+h1 {
+  margin-top: 20px;
+}
+
+.container {
+  padding: 20px;
+}
+
+.item {
+  background: white;
+  color: black;
+  margin: 15px;
+  padding: 15px;
+  border-radius: 15px;
+}
+
+button {
+  padding: 10px 15px;
+  margin: 5px;
+  font-size: 18px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.add { background: #06d6a0; }
+.remove { background: #ef476f; }
+
+button:active {
+  transform: scale(1.1);
+}
+
+.total {
+  margin-top: 20px;
+  font-size: 20px;
+}
+
+.finalizar {
+  background: #25d366;
+  color: white;
+  padding: 15px;
+  font-size: 20px;
+  border-radius: 15px;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>🍧 Geladinhos da Mily</h1>
+
+<div class="container" id="cardapio"></div>
+
+<div class="total">
+  <p id="subtotal">Subtotal: R$ 0,00</p>
+  <p id="entrega">Entrega: R$ 0,00</p>
+  <p id="total">Total: R$ 0,00</p>
+</div>
+
+<button class="finalizar" onclick="finalizar()">Finalizar Pedido</button>
+
+<audio id="clickSound" src="https://www.soundjay.com/buttons/sounds/button-16.mp3"></audio>
+
+<script>
+const sabores = [
+  {nome: "Chocolate", qtd: 0},
+  {nome: "Coco", qtd: 0},
+  {nome: "Oreo", qtd: 0},
+  {nome: "Maracujá", qtd: 0}
+];
+
+const preco = 2;
+
+function render() {
+  const div = document.getElementById("cardapio");
+  div.innerHTML = "";
+
+  sabores.forEach((s, i) => {
+    div.innerHTML += `
+      <div class="item">
+        <h2>${s.nome}</h2>
+        <p>R$ 2,00</p>
+        <button class="remove" onclick="alterar(${i}, -1)">➖</button>
+        <span>${s.qtd}</span>
+        <button class="add" onclick="alterar(${i}, 1)">➕</button>
+      </div>
+    `;
+  });
+
+  atualizarTotal();
+}
+
+function alterar(i, valor) {
+  if (sabores[i].qtd + valor >= 0) {
+    sabores[i].qtd += valor;
+    document.getElementById("clickSound").play();
+    render();
+  }
+}
+
+function atualizarTotal() {
+  let totalItens = 0;
+  let subtotal = 0;
+
+  sabores.forEach(s => {
+    totalItens += s.qtd;
+    subtotal += s.qtd * preco;
+  });
+
+  let entrega = totalItens > 0 && totalItens <= 5 ? 3 : 0;
+
+  document.getElementById("subtotal").innerText = "Subtotal: R$ " + subtotal.toFixed(2);
+  document.getElementById("entrega").innerText = entrega === 0 ? "Entrega: Grátis" : "Entrega: R$ " + entrega.toFixed(2);
+  document.getElementById("total").innerText = "Total: R$ " + (subtotal + entrega).toFixed(2);
+}
+
+function finalizar() {
+  let nome = prompt("Digite seu nome:");
+  let endereco = prompt("Digite seu endereço:");
+
+  let mensagem = "Olá, quero fazer um pedido:%0A%0A";
+  mensagem += "Nome: " + nome + "%0A";
+  mensagem += "Endereço: " + endereco + "%0A%0A";
+
+  let totalItens = 0;
+  let subtotal = 0;
+
+  sabores.forEach(s => {
+    if (s.qtd > 0) {
+      mensagem += `- ${s.qtd}x ${s.nome}%0A`;
+      totalItens += s.qtd;
+      subtotal += s.qtd * preco;
+    }
+  });
+
+  let entrega = totalItens > 0 && totalItens <= 5 ? 3 : 0;
+  let total = subtotal + entrega;
+
+  mensagem += "%0ASubtotal: R$ " + subtotal.toFixed(2);
+  mensagem += "%0AEntrega: " + (entrega === 0 ? "Grátis" : "R$ " + entrega.toFixed(2));
+  mensagem += "%0ATotal: R$ " + total.toFixed(2);
+
+  window.open("https://wa.me/5575999806162?text=" + mensagem);
+}
+
+render();
+</script>
+
+</body>
+</html>
